@@ -124,24 +124,28 @@ function wpj_ct_apply_fees( $wpjobster_tax_percent ) {
 	} elseif ( isset( $post->ID ) ) {
 		$pid = $post->ID;
 	}
-	
+
 	if ( isset( $pid ) ) {
 		$terms = get_the_terms( $pid, 'job_cat' );
-		if ( $terms ){
-			foreach ( $terms as $key => $value ) {
-				if ( $value->parent && $value->parent != 0 ) {
-					$p_term = $value->term_id; break;
-				} else {
-					$p_term = $value->term_id;
-				}
-			}
-		}
-
 		$category_taxes = get_option( 'category_taxes' );
-		if ( $category_taxes ) {
-			foreach ( $category_taxes as $key => $value ) {
-				if( $key == $p_term ) {
-					$wpjobster_tax_percent = $value;
+		$cat_id = ''; $sub_id = '';
+
+		if ( $terms ){
+			foreach ( $terms as $t_key => $t_val ) {
+				if ( $t_val->parent == 0 ) {
+					$cat_id = $t_val->term_id;
+				}
+
+				if ( $t_val->parent != 0 ) {
+					$sub_id = $t_val->term_id;
+				}
+
+				if ( isset( $category_taxes[$cat_id] ) ) {
+					$wpjobster_tax_percent = $category_taxes[$cat_id];
+				}
+
+				if ( isset( $category_taxes[$sub_id] ) ) {
+					$wpjobster_tax_percent = $category_taxes[$sub_id];
 				}
 			}
 		}
